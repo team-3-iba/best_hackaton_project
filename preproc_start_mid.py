@@ -42,6 +42,11 @@ important = {'ABS (антиблокировочная система)',
      'Электростеклоподъемники передние',
      'Материал салона - натуральная кожа'}
 
+def _get_region(lst):
+    if len(lst) == 1:
+        return lst[0]
+    return lst[1]
+
 def preproc(avto):
     for imp in important:
         avto[imp] = avto.table.apply(lambda x: int(imp in x))
@@ -64,11 +69,17 @@ def preproc(avto):
 
     today_view_mask = pd.isna(avto['today_views'])
     avto.loc[today_view_mask, 'today_views'] = avto[today_view_mask]['all_views']
-	
-	avto['drive-unit'].fillna(value=0, inplace=True)
+    
+    avto['drive-unit'].fillna(value=0, inplace=True)
     temp = avto['drive-unit'].value_counts().index[0]
     for ind in avto.index:
         if ind == 0:
             avto.loc[avto['drive-unit'] == ind, 'drive-unit'] = temp
-			
+    
+    avto['today_views'] = avto['today_views'].str.replace(' ', '').astype('int')
+    avto['all_views'] = avto['all_views'].str.replace(' ', '').astype('int')
+    
+    tmp = list(map(lambda s: s.split(', '), avto.region))
+    avto.region = list(map(_get_region, tmp))
+
     return avto
