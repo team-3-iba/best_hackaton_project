@@ -47,6 +47,16 @@ def _get_region(lst):
         return lst[0]
     return lst[1]
 
+def check_m(lst):
+    if lst[0] == 'Опубликовано':
+        return 0
+    return 1
+
+def get_d(lst):
+    if len(lst) == 4:
+        return 1
+    return 0
+
 def preproc(avto):
     for imp in important:
         avto[imp] = avto.table.apply(lambda x: int(imp in x))
@@ -81,5 +91,9 @@ def preproc(avto):
     
     tmp = list(map(lambda s: s.split(', '), avto.region))
     avto.region = list(map(_get_region, tmp))
+    
+    df['date'] = df['update'].apply(lambda x: x.split()[1])
+    df['modified'] = df['update'].apply(lambda x: check_m(x.split()))
+    df['up'] = df['update'].apply(lambda x: get_d(x.split()))
 
     return avto
